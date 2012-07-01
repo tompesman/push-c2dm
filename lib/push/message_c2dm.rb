@@ -5,7 +5,8 @@ module Push
     # TODO" QuotaExceeded — Too many messages sent by the sender. Retry after a while.
     # TODO: DeviceQuotaExceeded — Too many messages sent by the sender to a specific device. Retry after a while.
 
-    store :properties, accessors: [:collapse_key, :delay_when_idle, :payload ]
+    store :properties, accessors: [:collapse_key, :delay_when_idle, :payload]
+    attr_accessible :device, :collapse_key, :delay_when_idle, :payload
 
     def to_message
       as_hash.map{|k, v| "&#{k}=#{URI.escape(v.to_s)}"}.reduce{|k, v| k + v}
