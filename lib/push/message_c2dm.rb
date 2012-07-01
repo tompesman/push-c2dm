@@ -16,6 +16,15 @@ module Push
       Push::Daemon::C2dmSupport::ConnectionC2dm
     end
 
+    def payload=(attrs)
+      raise ArgumentError, "payload must be a Hash" if !attrs.is_a?(Hash)
+      properties[:payload] = MultiJson.encode(attrs)
+    end
+
+    def payload
+      MultiJson.decode(properties[:payload]) if properties[:payload]
+    end
+
     private
 
     def as_hash
