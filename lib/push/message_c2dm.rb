@@ -20,10 +20,10 @@ module Push
 
     def as_hash
       json = ActiveSupport::OrderedHash.new
-      json['registration_id'] = self.device
-      json['collapse_key'] = self.collapse_key
-      json['delay_when_idle'] = "1" if self.delay_when_idle == true
-      self.payload.each { |k, v| json["data.#{k.to_s}"] = v.to_s } if self.payload
+      json['registration_id'] = device
+      json['collapse_key'] = collapse_key
+      json['delay_when_idle'] = "1" if delay_when_idle == true
+      self.payload.each { |k, v| json["data.#{k.to_s}"] = v.to_s } if payload
       json
     end
 
