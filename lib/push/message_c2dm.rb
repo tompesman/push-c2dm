@@ -46,7 +46,7 @@ module Push
         # not be used anymore
         if ["InvalidRegistration", "NotRegistered"].index(error_type)
           with_database_reconnect_and_retry(connection.name) do
-            Push::FeedbackC2dm.create!(:failed_at => Time.now, :device => device)
+            Push::FeedbackC2dm.create!(:failed_at => Time.now, :device => device, :follow_up => 'delete')
           end
         end
 
