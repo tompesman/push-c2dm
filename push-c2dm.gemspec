@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.email       = ["tom@tnux.net"]
   s.homepage    = "https://github.com/tompesman/push-c2dm"
   s.summary     = "C2DM (Android) part of the modular push daemon."
-  s.description = "Plugin with C2DM specific push information."
+  s.description = "C2DM support for the modular push daemon."
 
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.files         = `git ls-files lib`.split("\n") + ["README.md", "MIT-LICENSE"]
