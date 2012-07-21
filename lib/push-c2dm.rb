@@ -1,6 +1,8 @@
 require 'net/http'
 require 'net/https'
 require 'push-c2dm/version'
+require 'push/configuration'
+require 'push/configuration_c2dm'
 require 'push/message'
 require 'push/message_c2dm'
 require 'push/feedback'

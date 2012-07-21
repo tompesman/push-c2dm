@@ -6,7 +6,7 @@ module Push
     # TODO: DeviceQuotaExceeded — Too many messages sent by the sender to a specific device. Retry after a while.
 
     store :properties, accessors: [:collapse_key, :delay_when_idle, :payload]
-    attr_accessible :device, :collapse_key, :delay_when_idle, :payload
+    attr_accessible :app, :device, :collapse_key, :delay_when_idle, :payload
 
     def to_message
       as_hash.map{|k, v| "&#{k}=#{URI.escape(v.to_s)}"}.reduce{|k, v| k + v}
@@ -46,7 +46,7 @@ module Push
         # not be used anymore
         if ["InvalidRegistration", "NotRegistered"].index(error_type)
           with_database_reconnect_and_retry(connection.name) do
-            Push::FeedbackC2dm.create!(:failed_at => Time.now, :device => device, :follow_up => 'delete')
+            Push::FeedbackC2dm.create!(:app => connection.provider.configuration[:name], :failed_at => Time.now, :device => device, :follow_up => 'delete')
           end
         end
 

@@ -2,13 +2,13 @@ module Push
   module Daemon
     module C2dmSupport
       class ConnectionC2dm
-        attr_reader :response, :name
+        attr_reader :response, :name, :provider
         AUTH_URL = "https://www.google.com/accounts/ClientLogin"
         PUSH_URL = "https://android.apis.google.com/c2dm/send"
 
         def initialize(provider, i)
           @provider = provider
-          @name = "ConnectionC2dm #{i}"
+          @name = "#{@provider.configuration[:name]}: ConnectionC2dm #{i}"
 
           @email = @provider.configuration[:email]
           @password = @provider.configuration[:password]
