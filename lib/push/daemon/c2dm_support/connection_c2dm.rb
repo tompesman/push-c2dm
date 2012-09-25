@@ -1,10 +1,13 @@
 module Push
   module Daemon
     module C2dmSupport
+      class ConnectionError < StandardError; end
+
       class ConnectionC2dm
         attr_reader :response, :name, :provider
         AUTH_URL = "https://www.google.com/accounts/ClientLogin"
         PUSH_URL = "https://android.apis.google.com/c2dm/send"
+        IDLE_PERIOD = 5.minutes
 
         def initialize(provider, i)
           @provider = provider
@@ -74,15 +77,48 @@ module Push
                      "Content-type" => "application/x-www-form-urlencoded",
                      "Content-length" => "#{data.length}" }
           uri = URI.parse(PUSH_URL)
+          post(uri, data, headers)
+        end
 
-          # Timeout on the http connection is 5 minutes, reconnect after 5 minutes
-          if @last_use + 5.minutes < Time.now
-            @connection.finish
-            @connection.start
+        def post(uri, data, headers)
+          reconnect_idle if idle_period_exceeded?
+
+          retry_count = 0
+
+          begin
+            response = @connection.post(uri.path, data, headers)
+            @last_use = Time.now
+          rescue EOFError, Errno::ECONNRESET, Timeout::Error => e
+            retry_count += 1
+
+            Push::Daemon.logger.error("[#{@name}] Lost connection to #{PUSH_URL} (#{e.class.name}), reconnecting ##{retry_count}...")
+
+            if retry_count <= 3
+              reconnect
+              sleep 1
+              retry
+            else
+              raise ConnectionError, "#{@name} tried #{retry_count-1} times to reconnect but failed (#{e.class.name})."
+            end
           end
-          @last_use = Time.now
 
-          @connection.post(uri.path, data, headers)
+          response
+        end
+
+        def idle_period_exceeded?
+          # Timeout on the http connection is 5 minutes, reconnect after 5 minutes
+          @last_use + IDLE_PERIOD < Time.now
+        end
+
+        def reconnect_idle
+          Push::Daemon.logger.info("[#{@name}] Idle period exceeded, reconnecting...")
+          reconnect
+        end
+
+        def reconnect
+          @connection.finish
+          @last_use = Time.now
+          @connection.start
         end
       end
     end
