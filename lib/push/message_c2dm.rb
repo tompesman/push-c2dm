@@ -44,12 +44,13 @@ module Push
         # not be used anymore
         if ["InvalidRegistration", "NotRegistered"].index(error_type)
           with_database_reconnect_and_retry(connection.name) do
-            Push::FeedbackC2dm.create!(:app => connection.provider.configuration[:name], :failed_at => Time.now, :device => device, :follow_up => 'delete')
+            Push::FeedbackC2dm.create!(:app => connection.provider.configuration[:name], :failed_at => Time.now,
+              :device => device, :follow_up => 'delete')
           end
-        else
-          Push::Daemon.logger.error("[#{connection.name}] Error received.")
-          raise Push::DeliveryError.new(response.code, id, error_type, "C2DM")
         end
+
+        Push::Daemon.logger.error("[#{connection.name}] Error received.")
+        raise Push::DeliveryError.new(response.code, id, error_type, "C2DM")
       elsif !response.code.eql? "200"
         Push::Daemon.logger.error("[#{connection.name}] Error received.")
         raise Push::DeliveryError.new(response.code, id, "#{response.message} #{response.body if response.body_permitted?}", "C2DM")
