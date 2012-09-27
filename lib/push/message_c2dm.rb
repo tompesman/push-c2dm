@@ -53,7 +53,7 @@ module Push
         raise Push::DeliveryError.new(response.code, id, error_type, "C2DM")
       elsif !response.code.eql? "200"
         Push::Daemon.logger.error("[#{connection.name}] Error received.")
-        raise Push::DeliveryError.new(response.code, id, "#{response.message} #{response.body if response.body_permitted?}", "C2DM")
+        raise Push::DeliveryError.new(response.code, id, response.message, "C2DM")
       end
     end
   end
