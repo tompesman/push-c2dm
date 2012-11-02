@@ -40,6 +40,8 @@ module Push
       response = connection.response
       error_type = response.body[/Error=(.*)/, 1]
       if response.code.eql? "200" and error_type
+        Push::Daemon.logger.error("[#{connection.name}] Error received.")
+
         # if error_type is one of the following, the registration_id (device) should
         # not be used anymore
         if ["InvalidRegistration", "NotRegistered"].index(error_type)
@@ -47,10 +49,10 @@ module Push
             Push::FeedbackC2dm.create!(:app => connection.provider.configuration[:name], :failed_at => Time.now,
               :device => device, :follow_up => 'delete')
           end
+          raise Push::DeliveryError.new(response.code, id, error_type, "C2DM", false)
+        else
+          raise Push::DeliveryError.new(response.code, id, error_type, "C2DM")
         end
-
-        Push::Daemon.logger.error("[#{connection.name}] Error received.")
-        raise Push::DeliveryError.new(response.code, id, error_type, "C2DM")
       elsif !response.code.eql? "200"
         Push::Daemon.logger.error("[#{connection.name}] Error received.")
         raise Push::DeliveryError.new(response.code, id, response.message, "C2DM")
