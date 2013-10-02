@@ -48,10 +48,10 @@ module Push
               :device => device, :follow_up => 'delete')
           end
         end
-        Push::Daemon.logger.error("[#{connection.name}] Error received.")
+        Push.logger.error("[#{connection.name}] Error received.")
         raise Push::DeliveryError.new(response.code, id, error_type, "C2DM", false)
       elsif !response.code.eql? "200"
-        Push::Daemon.logger.error("[#{connection.name}] Error received.")
+        Push.logger.error("[#{connection.name}] Error received.")
         raise Push::DeliveryError.new(response.code, id, response.message, "C2DM", false)
       end
     end
